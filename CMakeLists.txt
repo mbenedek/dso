@@ -1,9 +1,8 @@
 SET(PROJECT_NAME DSO)
 
 PROJECT(${PROJECT_NAME})
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.7)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
-
 
 set(BUILD_TYPE Release)
 #set(BUILD_TYPE RelWithDebInfo)
@@ -12,10 +11,16 @@ set(EXECUTABLE_OUTPUT_PATH bin)
 set(LIBRARY_OUTPUT_PATH lib)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+
+include_directories("/opt/local/include/")
+
 # required libraries
 find_package(SuiteParse REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Boost COMPONENTS system thread) 
+find_package(Boost COMPONENTS system thread)
+
+
+#set(USE_STATIC_BOOST True)
 
 # optional libraries
 find_package(LibZip QUIET)
@@ -119,7 +124,18 @@ add_library(dso ${dso_SOURCE_FILES} ${dso_opencv_SOURCE_FILES} ${dso_pangolin_SO
 if (OpenCV_FOUND AND Pangolin_FOUND)
 	message("--- compiling dso_dataset.")
 	add_executable(dso_dataset ${PROJECT_SOURCE_DIR}/src/main_dso_pangolin.cpp )
-    target_link_libraries(dso_dataset dso boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS})
+    #target_link_libraries(dso_dataset dso boost_system boost_thread cxsparse ${LIBZIP_LIBRARY} ${Pangolin_LIBRARIES} ${OpenCV_LIBS})
+
+	target_link_libraries(dso_dataset
+		dso
+		${Boost_SYSTEM_LIBRARY}
+		${Boost_THREAD_LIBRARY}
+		cxsparse
+		${LIBZIP_LIBRARY}
+		${Pangolin_LIBRARIES}
+		${OpenCV_LIBS}
+	)
+
 else()
 	message("--- not building dso_dataset, since either don't have openCV or Pangolin.")
 endif()
